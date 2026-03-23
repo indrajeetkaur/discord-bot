@@ -156,6 +156,70 @@ async def on_member_remove(member):
             await punish(executor)
 
 # ===== CHANNEL DELETE =====
+===== BASIC COMMANDS =====
+@bot.command()
+async def ping(ctx):
+    await ctx.send(f"Pong! {round(bot.latency * 1000)}ms")
+
+# ===== ANTINUKE SYSTEM (FIXED) =====
+
+import time
+
+user_actions = {}
+LIMIT = 3
+TIME = 10  # seconds
+
+async def punish(member):
+    try:
+        await member.ban(reason="Antinuke Protection 🚨")
+    except:
+        pass
+
+def check_user(user_id):
+    current_time = time.time()
+
+    if user_id not in user_actions:
+        user_actions[user_id] = []
+
+    # purane actions hatao
+    user_actions[user_id] = [
+        t for t in user_actions[user_id]
+        if current_time - t < TIME
+    ]
+
+    user_actions[user_id].append(current_time)
+
+    return len(user_actions[user_id]) >= LIMIT
+
+# ===== BAN PROTECTION =====
+@bot.event
+async def on_member_ban(guild, user):
+    await asyncio.sleep(1)
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
+        executor = entry.user
+
+        if executor.bot or executor == guild.owner:
+            return
+
+        if check_user(executor.id):
+            await punish(executor) 
+
+ ===== KICK PROTECTION =====
+@bot.event
+async def on_member_remove(member):
+    guild = member.guild
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+        executor = entry.user
+
+        if executor.bot or executor == guild.owner:
+            return
+
+        if check_user(executor.id):
+            await punish(executor)
+
+# ===== CHANNEL DELETE =====
 @bot.event
 async def on_guild_channel_delete(channel):
     guild = channel.guild
