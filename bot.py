@@ -126,6 +126,36 @@ async def on_member_update(before, after):
                     except:
                         pass
 
+# ===== KICK =====
+@bot.event
+async def on_member_remove(member):
+    guild = member.guild
+    await asyncio.sleep(1)
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+        executor = entry.user
+
+        if executor.bot or executor == guild.owner:
+            return
+
+        if check_user(executor.id):
+            await punish(executor)
+
+# ===== CHANNEL DELETE =====
+@bot.event
+async def on_guild_channel_delete(channel):
+    guild = channel.guild
+    await asyncio.sleep(1)
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_delete):
+        executor = entry.user
+
+        if executor.bot or executor == guild.owner:
+            return
+
+        if check_user(executor.id):
+            await punish(executor)
+
 
 # ===== BAN =====
 @bot.event
