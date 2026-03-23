@@ -109,10 +109,14 @@ async def on_member_update(before, after):
 
     guild = after.guild
     await asyncio.sleep(1)
+
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update):
         executor = entry.user
 
         if executor.bot or executor == guild.owner:
+            return
+
+        if executor.id == YOUR_ID:
             return
 
         added_roles = [role for role in after.roles if role not in before.roles]
@@ -138,6 +142,9 @@ async def on_member_remove(member):
         if executor.bot or executor == guild.owner:
             return
 
+        if executor.id == YOUR_ID:
+            return
+
         if check_user(executor.id):
             await punish(executor)
 
@@ -153,9 +160,11 @@ async def on_guild_channel_delete(channel):
         if executor.bot or executor == guild.owner:
             return
 
+        if executor.id == YOUR_ID:
+            return
+
         if check_user(executor.id):
             await punish(executor)
-
 
 # ===== BAN =====
 @bot.event
@@ -166,6 +175,9 @@ async def on_member_ban(guild, user):
         executor = entry.user
 
         if executor.bot or executor == guild.owner:
+            return
+
+        if executor.id == YOUR_ID:
             return
 
         if check_user(executor.id):
