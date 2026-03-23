@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 from discord.ui import View, Select, Button
 import os
+import asyncio
 
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="&", intents=intents, help_command=None)
