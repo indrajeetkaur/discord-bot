@@ -108,7 +108,7 @@ async def on_member_update(before, after):
         return
 
     guild = after.guild
-
+    await asyncio.sleep(1)
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update):
         executor = entry.user
 
