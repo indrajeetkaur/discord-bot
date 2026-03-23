@@ -92,6 +92,41 @@ def check_user(user_id):
     user_actions[user_id].append(current_time)
     return len(user_actions[user_id]) >= LIMIT
 
+# ===== ANTI BETRAY SYSTEM =====
+
+DANGEROUS_PERMS = [
+    "administrator",
+    "manage_guild",
+    "ban_members",
+    "kick_members",
+    "manage_roles"
+]
+
+@bot.event
+async def on_member_update(before, after):
+    if before.roles == after.roles:
+        return
+
+    guild = after.guild
+
+    async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update):
+        executor = entry.user
+
+        if executor.bot or executor == guild.owner:
+            return
+
+        added_roles = [role for role in after.roles if role not in before.roles]
+
+        for role in added_roles:
+            for perm in DANGEROUS_PERMS:
+                if getattr(role.permissions, perm):
+                    try:
+                        await after.remove_roles(role)
+                        await punish(executor)
+                    except:
+                        pass
+
+
 # ===== BAN =====
 @bot.event
 async def on_member_ban(guild, user):
