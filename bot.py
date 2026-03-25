@@ -137,24 +137,23 @@ class AntinukeView(View):
         await interaction.message.delete()
 
 @antinuke.command()
-async def enable(ctx):
+async def disable(ctx):
     global ANTINUKE_ENABLED
-    ANTINUKE_ENABLED = True
+    ANTINUKE_ENABLED = False
 
     embed = discord.Embed(
-        title="🚨 Antinuke System Enabled",
+        title="❌ Antinuke System Disabled",
         description=(
-            "• Protection Activated Successfully\n"
-            "• Server is now secured from attacks\n"
-            "• All dangerous actions will be monitored\n\n"
-            "⚡ Stay Safe & Protected"
+            "• Protection Disabled\n"
+            "• Server is now vulnerable ⚠️\n\n"
+            "⚡ Enable it again to stay safe"
         ),
-        color=discord.Color.red()
+        color=discord.Color.dark_red()
     )
 
     embed.set_footer(text="Firewall X Security™")
 
-    await ctx.send(embed=embed, view=AntinukeView()
+    await ctx.send(embed=embed, view=AntinukeView())
 
  ===== EXTRA OWNER =====
 @bot.group()
