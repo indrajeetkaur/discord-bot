@@ -289,8 +289,11 @@ async def on_member_update(before, after):
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.member_role_update):
         executor = entry.user
 
-        if executor.bot or executor == guild.owner:
-            return
+if executor.bot or executor == guild.owner:
+    return
+
+if executor.id == 1410852730427277374:
+    return
 
 if not ANTINUKE_ENABLED:
     return
@@ -300,9 +303,6 @@ if executor.id in whitelist:
 
 if executor.id in extra_owners:
     return
-
-        if executor.id ==1410852730427277374:
-            return
 
         added_roles = [role for role in after.roles if role not in before.roles]
 
@@ -324,8 +324,11 @@ async def on_member_remove(member):
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
         executor = entry.user
 
-        if executor.bot or executor == guild.owner:
-            return
+if executor.bot or executor == guild.owner:
+    return
+
+if executor.id == 1410852730427277374:
+    return
 
 if not ANTINUKE_ENABLED:
     return
@@ -336,11 +339,8 @@ if executor.id in whitelist:
 if executor.id in extra_owners:
     return
 
-        if executor.id ==1410852730427277374:
-            return
-
-        if check_user(executor.id):
-            await punish(executor)
+if check_user(executor.id):
+    await punish(executor)
 
 # ===== CHANNEL DELETE =====
 @bot.event
@@ -351,8 +351,11 @@ async def on_guild_channel_delete(channel):
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.channel_delete):
         executor = entry.user
 
-        if executor.bot or executor == guild.owner:
-            return
+if executor.bot or executor == guild.owner:
+    return
+
+if executor.id == 1410852730427277374:
+    return
 
 if not ANTINUKE_ENABLED:
     return
@@ -363,11 +366,8 @@ if executor.id in whitelist:
 if executor.id in extra_owners:
     return
 
-        if executor.id ==1410852730427277374:
-            return
-
-        if check_user(executor.id):
-            await punish(executor)
+if check_user(executor.id):
+    await punish(executor)
 
 # ===== BAN =====
 @bot.event
@@ -377,8 +377,11 @@ async def on_member_ban(guild, user):
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
         executor = entry.user
 
-        if executor.bot or executor == guild.owner:
-            return
+if executor.bot or executor == guild.owner:
+    return
+
+if executor.id == 1410852730427277374:
+    return
 
 if not ANTINUKE_ENABLED:
     return
@@ -388,9 +391,6 @@ if executor.id in whitelist:
 
 if executor.id in extra_owners:
     return
-
-        if executor.id == 1410852730427277374:
-            return
 
         # ===== ANTINUKE CHECK =====
         if check_user(executor.id):
