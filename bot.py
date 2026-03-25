@@ -6,6 +6,9 @@ import os
 import asyncio
 import time
 
+ANTINUKE_ENABLED = False
+LOG_CHANNEL = None
+
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="&", intents=intents, help_command=None)
 
@@ -76,20 +79,7 @@ async def setlog(ctx, channel: discord.TextChannel):
     LOG_CHANNEL = channel.id
     await ctx.send(f"✅ Log channel set to {channel.mention}")
 
-# ===== ANTINUKE COMMAND =====
-@bot.group()
-@commands.has_permissions(administrator=True)
-async def antinuke(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send(f"⚙️ Antinuke is {'ENABLED' if ANTINUKE_ENABLED else 'DISABLED'}")
-
-@antinuke.command()
-async def enable(ctx):
-    global ANTINUKE_ENABLED
-    ANTINUKE_ENABLED = True
-    await ctx.send("🛡️ Antinuke Enabled")
-from discord.ui import View, Button
-
+# ===== ANTINUKE VIEW =====
 class AntinukeView(View):
     def __init__(self):
         super().__init__(timeout=60)
@@ -102,6 +92,16 @@ class AntinukeView(View):
     async def stop(self, interaction: discord.Interaction, button: Button):
         await interaction.message.delete()
 
+
+# ===== ANTINUKE COMMAND =====
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def antinuke(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f"⚙️ Antinuke is {'ENABLED' if ANTINUKE_ENABLED else 'DISABLED'}")
+
+
+# ===== ENABLE =====
 @antinuke.command()
 async def enable(ctx):
     global ANTINUKE_ENABLED
@@ -122,20 +122,8 @@ async def enable(ctx):
 
     await ctx.send(embed=embed, view=AntinukeView())
 
-from discord.ui import View, Button
 
-class AntinukeView(View):
-    def __init__(self):
-        super().__init__(timeout=60)
-
-    @discord.ui.button(label="Proceed", style=discord.ButtonStyle.green)
-    async def proceed(self, interaction: discord.Interaction, button: Button):
-        await interaction.response.send_message("✅ Antinuke Confirmed", ephemeral=True)
-
-    @discord.ui.button(label="Stop", style=discord.ButtonStyle.red)
-    async def stop(self, interaction: discord.Interaction, button: Button):
-        await interaction.message.delete()
-
+# ===== DISABLE =====
 @antinuke.command()
 async def disable(ctx):
     global ANTINUKE_ENABLED
