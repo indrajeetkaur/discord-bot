@@ -226,6 +226,24 @@ async def ban_error(ctx, error):
 async def kick_error(ctx, error):
     await ctx.send("❌ Permission nahi hai ya galat use")
 
+async def punish(member):
+    try:
+        await member.ban(reason="Antinuke 🚨")
+
+        if LOG_CHANNEL:
+            log = bot.get_channel(LOG_CHANNEL)
+            if log:
+                embed = discord.Embed(
+                    description=f"🚨 User punished",
+                    color=discord.Color.red()
+                )
+                embed.add_field(name="User", value=f"{member}")
+                embed.add_field(name="Action", value="Ban")
+                await log.send(embed=embed)
+
+    except:
+        pass
+
 # ===== ANTINUKE =====
 user_actions = {}
 LIMIT = 3
