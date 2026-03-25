@@ -274,6 +274,15 @@ async def on_member_update(before, after):
         if executor.bot or executor == guild.owner:
             return
 
+if not ANTINUKE_ENABLED:
+    return
+
+if executor.id in whitelist:
+    return
+
+if executor.id in extra_owners:
+    return
+
         if executor.id ==1410852730427277374:
             return
 
@@ -300,6 +309,15 @@ async def on_member_remove(member):
         if executor.bot or executor == guild.owner:
             return
 
+if not ANTINUKE_ENABLED:
+    return
+
+if executor.id in whitelist:
+    return
+
+if executor.id in extra_owners:
+    return
+
         if executor.id ==1410852730427277374:
             return
 
@@ -318,6 +336,15 @@ async def on_guild_channel_delete(channel):
         if executor.bot or executor == guild.owner:
             return
 
+if not ANTINUKE_ENABLED:
+    return
+
+if executor.id in whitelist:
+    return
+
+if executor.id in extra_owners:
+    return
+
         if executor.id ==1410852730427277374:
             return
 
@@ -334,6 +361,15 @@ async def on_member_ban(guild, user):
 
         if executor.bot or executor == guild.owner:
             return
+
+if not ANTINUKE_ENABLED:
+    return
+
+if executor.id in whitelist:
+    return
+
+if executor.id in extra_owners:
+    return
 
         if executor.id == 1410852730427277374:
             return
