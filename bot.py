@@ -67,6 +67,29 @@ async def help(ctx):
 @bot.command()
 async def ping(ctx):
     await ctx.send(f"Pong! {round(bot.latency * 1000)}ms")
+# ===== MODERATION COMMANDS =====
+
+@bot.command()
+@commands.has_permissions(ban_members=True)
+async def ban(ctx, member: discord.Member, *, reason=None):
+    await member.ban(reason=reason)
+    await ctx.send(f"🔨 {member} banned!")
+
+@bot.command()
+@commands.has_permissions(kick_members=True)
+async def kick(ctx, member: discord.Member, *, reason=None):
+    await member.kick(reason=reason)
+    await ctx.send(f"👢 {member} kicked!")
+
+# ===== ERROR HANDLER =====
+
+@ban.error
+async def ban_error(ctx, error):
+    await ctx.send("❌ Permission nahi hai ya galat use")
+
+@kick.error
+async def kick_error(ctx, error):
+    await ctx.send("❌ Permission nahi hai ya galat use")
 
 # ===== ANTINUKE =====
 user_actions = {}
