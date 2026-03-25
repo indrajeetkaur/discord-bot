@@ -139,7 +139,7 @@ async def on_member_update(before, after):
         if executor.bot or executor == guild.owner:
             return
 
-        if executor.id == YOUR_ID:
+        if executor.id ==1410852730427277374
             return
 
         added_roles = [role for role in after.roles if role not in before.roles]
@@ -165,7 +165,7 @@ async def on_member_remove(member):
         if executor.bot or executor == guild.owner:
             return
 
-        if executor.id == YOUR_ID:
+        if executor.id ==1410852730427277374
             return
 
         if check_user(executor.id):
@@ -183,7 +183,7 @@ async def on_guild_channel_delete(channel):
         if executor.bot or executor == guild.owner:
             return
 
-        if executor.id == YOUR_ID:
+        if executor.id ==1410852730427277374
             return
 
         if check_user(executor.id):
@@ -200,7 +200,7 @@ async def on_member_ban(guild, user):
         if executor.bot or executor == guild.owner:
             return
 
-        if executor.id == YOUR_ID:
+        if executor.id ==1410852730427277374
             return
 
         if check_user(executor.id):
