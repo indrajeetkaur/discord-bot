@@ -88,30 +88,75 @@ async def enable(ctx):
     global ANTINUKE_ENABLED
     ANTINUKE_ENABLED = True
     await ctx.send("🛡️ Antinuke Enabled")
+from discord.ui import View, Button
+
+class AntinukeView(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+
+    @discord.ui.button(label="Proceed", style=discord.ButtonStyle.green)
+    async def proceed(self, interaction: discord.Interaction, button: Button):
+        await interaction.response.send_message("✅ Antinuke Confirmed", ephemeral=True)
+
+    @discord.ui.button(label="Stop", style=discord.ButtonStyle.red)
+    async def stop(self, interaction: discord.Interaction, button: Button):
+        await interaction.message.delete()
 
 @antinuke.command()
-async def disable(ctx):
+async def enable(ctx):
     global ANTINUKE_ENABLED
-    ANTINUKE_ENABLED = False
-    await ctx.send("❌ Antinuke Disabled")
+    ANTINUKE_ENABLED = True
 
-@antinuke.command()
-async def config(ctx):
-    await ctx.send(
-        f"🛡️ Status: {'ON' if ANTINUKE_ENABLED else 'OFF'}\n"
-        f"👑 Extra Owners: {len(extra_owners)}\n"
-        f"✅ Whitelisted: {len(whitelist)}\n"
-        f"📜 Log Channel: {LOG_CHANNEL}"
+    embed = discord.Embed(
+        title="🚨 Antinuke System Enabled",
+        description=(
+            "• Protection Activated Successfully\n"
+            "• Server is now secured from attacks\n"
+            "• All dangerous actions will be monitored\n\n"
+            "⚡ Stay Safe & Protected"
+        ),
+        color=discord.Color.red()
     )
 
+    embed.set_footer(text="Firewall X Security™")
+
+    await ctx.send(embed=embed, view=AntinukeView())
+
+from discord.ui import View, Button
+
+class AntinukeView(View):
+    def __init__(self):
+        super().__init__(timeout=60)
+
+    @discord.ui.button(label="Proceed", style=discord.ButtonStyle.green)
+    async def proceed(self, interaction: discord.Interaction, button: Button):
+        await interaction.response.send_message("✅ Antinuke Confirmed", ephemeral=True)
+
+    @discord.ui.button(label="Stop", style=discord.ButtonStyle.red)
+    async def stop(self, interaction: discord.Interaction, button: Button):
+        await interaction.message.delete()
+
 @antinuke.command()
-async def logging(ctx, channel: discord.TextChannel):
-    global LOG_CHANNEL
-    LOG_CHANNEL = channel.id
-    await ctx.send(f"📜 Logging channel set to {channel.mention}")
+async def enable(ctx):
+    global ANTINUKE_ENABLED
+    ANTINUKE_ENABLED = True
 
+    embed = discord.Embed(
+        title="🚨 Antinuke System Enabled",
+        description=(
+            "• Protection Activated Successfully\n"
+            "• Server is now secured from attacks\n"
+            "• All dangerous actions will be monitored\n\n"
+            "⚡ Stay Safe & Protected"
+        ),
+        color=discord.Color.red()
+    )
 
-# ===== EXTRA OWNER =====
+    embed.set_footer(text="Firewall X Security™")
+
+    await ctx.send(embed=embed, view=AntinukeView()
+
+ ===== EXTRA OWNER =====
 @bot.group()
 @commands.has_permissions(administrator=True)
 async def extraowner(ctx):
