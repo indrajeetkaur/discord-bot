@@ -6,6 +6,8 @@ import os
 import asyncio
 import time
 
+whitelist = set()
+extra_owners = set()
 ANTINUKE_ENABLED = False
 LOG_CHANNEL = None
 
@@ -143,7 +145,7 @@ async def disable(ctx):
 
     await ctx.send(embed=embed, view=AntinukeView())
 
- ===== EXTRA OWNER =====
+# ===== EXTRA OWNER =====
 @bot.group()
 @commands.has_permissions(administrator=True)
 async def extraowner(ctx):
@@ -280,12 +282,6 @@ async def punish(member):
 user_actions = {}
 LIMIT = 3
 TIME = 10
-
-async def punish(member):
-    try:
-        await member.ban(reason="Antinuke 🚨")
-    except:
-        pass
 
 def check_user(user_id):
     current_time = time.time()
