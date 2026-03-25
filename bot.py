@@ -76,6 +76,87 @@ async def setlog(ctx, channel: discord.TextChannel):
     LOG_CHANNEL = channel.id
     await ctx.send(f"✅ Log channel set to {channel.mention}")
 
+# ===== ANTINUKE COMMAND =====
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def antinuke(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send(f"⚙️ Antinuke is {'ENABLED' if ANTINUKE_ENABLED else 'DISABLED'}")
+
+@antinuke.command()
+async def enable(ctx):
+    global ANTINUKE_ENABLED
+    ANTINUKE_ENABLED = True
+    await ctx.send("🛡️ Antinuke Enabled")
+
+@antinuke.command()
+async def disable(ctx):
+    global ANTINUKE_ENABLED
+    ANTINUKE_ENABLED = False
+    await ctx.send("❌ Antinuke Disabled")
+
+@antinuke.command()
+async def config(ctx):
+    await ctx.send(
+        f"🛡️ Status: {'ON' if ANTINUKE_ENABLED else 'OFF'}\n"
+        f"👑 Extra Owners: {len(extra_owners)}\n"
+        f"✅ Whitelisted: {len(whitelist)}\n"
+        f"📜 Log Channel: {LOG_CHANNEL}"
+    )
+
+@antinuke.command()
+async def logging(ctx, channel: discord.TextChannel):
+    global LOG_CHANNEL
+    LOG_CHANNEL = channel.id
+    await ctx.send(f"📜 Logging channel set to {channel.mention}")
+
+
+# ===== EXTRA OWNER =====
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def extraowner(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Use set/view/reset")
+
+@extraowner.command()
+async def set(ctx, member: discord.Member):
+    extra_owners.add(member.id)
+    await ctx.send(f"👑 Added {member}")
+
+@extraowner.command()
+async def view(ctx):
+    if not extra_owners:
+        return await ctx.send("No extra owners")
+    await ctx.send("\n".join([f"<@{uid}>" for uid in extra_owners]))
+
+@extraowner.command()
+async def reset(ctx):
+    extra_owners.clear()
+    await ctx.send("♻️ Reset done")
+
+
+# ===== WHITELIST =====
+@bot.command()
+async def wl(ctx, member: discord.Member):
+    whitelist.add(member.id)
+    await ctx.send(f"✅ {member} whitelisted")
+
+@bot.command()
+async def unwl(ctx, member: discord.Member):
+    whitelist.discard(member.id)
+    await ctx.send(f"❌ {member} removed")
+
+@bot.command()
+async def whitelisted(ctx):
+    if not whitelist:
+        return await ctx.send("No users")
+    await ctx.send("\n".join([f"<@{uid}>" for uid in whitelist]))
+
+@bot.command()
+async def whitelistreset(ctx):
+    whitelist.clear()
+    await ctx.send("♻️ Reset")
+
 @bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
