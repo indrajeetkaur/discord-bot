@@ -71,9 +71,28 @@ async def ping(ctx):
 
 @bot.command()
 @commands.has_permissions(ban_members=True)
-async def ban(ctx, member: discord.Member, *, reason=None):
+async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
     await member.ban(reason=reason)
-    await ctx.send(f"🔨 {member} banned!")
+
+    # Executor (moderator)
+    executor = ctx.author
+
+    embed = discord.Embed(
+        description=f"🔨 Successfully Banned {member}",
+        color=discord.Color.red()
+    )
+
+    embed.add_field(name="Target User", value=f"{member}", inline=False)
+    embed.add_field(name="Mention", value=f"{member.mention}", inline=False)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    embed.add_field(name="Moderator", value=f"{executor.mention}", inline=False)
+    embed.add_field(name="DM Sent", value="No", inline=False)
+
+    embed.set_thumbnail(url=member.avatar.url if member.avatar else member.default_avatar.url)
+    embed.set_footer(text=f"Requested by {executor} | Today")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
 
 @bot.command()
 @commands.has_permissions(kick_members=True)
@@ -200,11 +219,32 @@ async def on_member_ban(guild, user):
         if executor.bot or executor == guild.owner:
             return
 
-        if executor.id ==1410852730427277374:
+        if executor.id == 1410852730427277374:
             return
 
+        # ===== ANTINUKE CHECK =====
         if check_user(executor.id):
             await punish(executor)
+
+        # ===== EMBED LOG =====
+        channel = guild.system_channel  # ya apna log channel id daal
+
+        if channel:
+            embed = discord.Embed(
+                description=f"🔨 Successfully Banned {user}",
+                color=discord.Color.red()
+            )
+
+            embed.add_field(name="Target User", value=f"{user}", inline=False)
+            embed.add_field(name="Mention", value=f"<@{user.id}>", inline=False)
+            embed.add_field(name="Moderator", value=f"{executor.mention}", inline=False)
+            embed.add_field(name="Reason", value="No reason provided", inline=False)
+
+            embed.set_thumbnail(url=user.display_avatar.url)
+            embed.set_footer(text=f"Action by {executor}")
+            embed.timestamp = discord.utils.utcnow()
+
+            await channel.send(embed=embed)
 
 # ===== RUN =====
 bot.run(os.getenv("BOT_TOKEN"))
