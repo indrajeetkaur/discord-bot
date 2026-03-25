@@ -109,9 +109,31 @@ async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
 
 @bot.command()
 @commands.has_permissions(kick_members=True)
-async def kick(ctx, member: discord.Member, *, reason=None):
+async def kick(ctx, member: discord.Member, *, reason="No reason provided"):
     await member.kick(reason=reason)
-    await ctx.send(f"👢 {member} kicked!")
+
+    embed = discord.Embed(
+        description=f"👢 Successfully Kicked {member}",
+        color=discord.Color.orange()
+    )
+
+    embed.add_field(name="Target User", value=f"{member}", inline=False)
+    embed.add_field(name="Mention", value=f"{member.mention}", inline=False)
+    embed.add_field(name="Reason", value=reason, inline=False)
+    embed.add_field(name="Moderator", value=f"{ctx.author.mention}", inline=False)
+    embed.add_field(name="DM Sent", value="No", inline=False)
+
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_footer(text=f"Requested by {ctx.author} | Today")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
+    # 🔥 LOG SYSTEM
+    if LOG_CHANNEL:
+        log_channel = bot.get_channel(LOG_CHANNEL)
+        if log_channel:
+            await log_channel.send(embed=embed)
 
 # ===== ERROR HANDLER =====
 
