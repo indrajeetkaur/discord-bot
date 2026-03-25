@@ -70,6 +70,13 @@ async def ping(ctx):
 # ===== MODERATION COMMANDS =====
 
 @bot.command()
+@commands.has_permissions(administrator=True)
+async def setlog(ctx, channel: discord.TextChannel):
+    global LOG_CHANNEL
+    LOG_CHANNEL = channel.id
+    await ctx.send(f"✅ Log channel set to {channel.mention}")
+
+@bot.command()
 @commands.has_permissions(ban_members=True)
 async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
     await member.ban(reason=reason)
@@ -93,6 +100,12 @@ async def ban(ctx, member: discord.Member, *, reason="No reason provided"):
     embed.timestamp = ctx.message.created_at
 
     await ctx.send(embed=embed)
+
+ # ✅ LOG PART
+    if LOG_CHANNEL:
+        log_channel = bot.get_channel(LOG_CHANNEL)
+        if log_channel:
+            await log_channel.send(embed=embed)
 
 @bot.command()
 @commands.has_permissions(kick_members=True)
