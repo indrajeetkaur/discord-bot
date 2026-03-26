@@ -5,6 +5,9 @@ from discord.ui import View, Select, Button
 import os
 import asyncio
 import time
+LIMIT_ENABLED = True
+LIMIT_COUNT = 3
+LIMIT_LOGGING = True
 
 whitelist = set()
 extra_owners = set()
@@ -220,6 +223,165 @@ async def reset(ctx):
     embed.timestamp = ctx.message.created_at
 
     await ctx.send(embed=embed)
+
+# ===== LIMIT SYSTEM =====
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def limit(ctx):
+    if ctx.invoked_subcommand is None:
+        embed = discord.Embed(
+            title="⚙️ LIMIT CONTROL PANEL",
+            description=(
+                "```yaml\n"
+                "Manage server protection limits easily\n"
+                "Use commands below 👇\n"
+                "```"
+            ),
+            color=discord.Color.dark_blue()
+        )
+
+        embed.add_field(
+            name="🟢 Enable",
+            value="`&limit enable`",
+            inline=True
+        )
+
+        embed.add_field(
+            name="🔴 Disable",
+            value="`&limit disable`",
+            inline=True
+        )
+
+        embed.add_field(
+            name="⚙️ Set Limit",
+            value="`&limit set <number>`",
+            inline=True
+        )
+
+        embed.add_field(
+            name="📊 Settings",
+            value="`&limit settings`",
+            inline=True
+        )
+
+        embed.add_field(
+            name="📢 Logging",
+            value="`&limit logging`",
+            inline=True
+        )
+
+        embed.set_footer(text="Firewall X Security™ • Limit System")
+        embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+
+        await ctx.send(embed=embed)
+
+
+# ===== ENABLE =====
+@limit.command()
+async def enable(ctx):
+    global LIMIT_ENABLED
+    LIMIT_ENABLED = True
+
+    embed = discord.Embed(
+        title="🟢 LIMIT ENABLED",
+        description="```diff\n+ Protection limit system is now ACTIVE\n```",
+        color=discord.Color.green()
+    )
+
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
+
+# ===== DISABLE =====
+@limit.command()
+async def disable(ctx):
+    global LIMIT_ENABLED
+    LIMIT_ENABLED = False
+
+    embed = discord.Embed(
+        title="🔴 LIMIT DISABLED",
+        description="```diff\n- Protection limit system is now OFF\n```",
+        color=discord.Color.red()
+    )
+
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
+
+# ===== SET LIMIT =====
+@limit.command()
+async def set(ctx, number: int):
+    global LIMIT_COUNT
+    LIMIT_COUNT = number
+
+    embed = discord.Embed(
+        title="⚙️ LIMIT UPDATED",
+        description=f"```yaml\nNew Limit: {number}\n```",
+        color=discord.Color.blurple()
+    )
+
+    embed.add_field(name="Changed By", value=ctx.author.mention)
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
+
+# ===== SETTINGS =====
+@limit.command()
+async def settings(ctx):
+    embed = discord.Embed(
+        title="📊 CURRENT LIMIT SETTINGS",
+        description="```ini\nSystem Configuration Overview\n```",
+        color=discord.Color.dark_green()
+    )
+
+    embed.add_field(
+        name="🟢 Status",
+        value=f"`{'ENABLED' if LIMIT_ENABLED else 'DISABLED'}`",
+        inline=True
+    )
+
+    embed.add_field(
+        name="⚙️ Limit",
+        value=f"`{LIMIT_COUNT}` actions",
+        inline=True
+    )
+
+    embed.add_field(
+        name="📢 Logging",
+        value=f"`{'ON' if LIMIT_LOGGING else 'OFF'}`",
+        inline=True
+    )
+
+    embed.set_footer(text="Firewall X Security™ • Live Stats")
+    embed.set_thumbnail(url=ctx.guild.icon.url if ctx.guild.icon else None)
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
+
+# ===== LOGGING TOGGLE =====
+@limit.command()
+async def logging(ctx):
+    global LIMIT_LOGGING
+    LIMIT_LOGGING = not LIMIT_LOGGING
+
+    embed = discord.Embed(
+        title="📢 LOGGING TOGGLED",
+        description=f"```yaml\nLogging: {'Enabled' if LIMIT_LOGGING else 'Disabled'}\n```",
+        color=discord.Color.orange()
+    )
+
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
 
 
 # ===== WHITELIST =====
