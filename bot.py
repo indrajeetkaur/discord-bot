@@ -146,6 +146,12 @@ async def disable(ctx):
     await ctx.send(embed=embed, view=AntinukeView())
 
 # ===== EXTRA OWNER =====
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def extraowner(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Use set/view/reset")
+
 @extraowner.command()
 async def set(ctx, member: discord.Member):
     if member.id in extra_owners:
