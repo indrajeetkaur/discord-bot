@@ -15,6 +15,10 @@ EMERGENCY_TRIGGERED = False
 user_actions = {}
 EMERGENCY_LOG_CHANNEL = None
 
+EMERGENCY_ENABLED = False
+EMERGENCY_ROLES = set()
+EMERGENCY_AUTH = set()
+
 whitelist = set()
 extra_owners = set()
 ANTINUKE_ENABLED = False
@@ -408,17 +412,13 @@ async def auto(ctx):
         embed.add_field(name="🔴 Disable", value="`&auto emergency disable`", inline=True)
         embed.add_field(name="♻️ Restore", value="`&auto emergency restore`", inline=True)
 
-        embed.set_footer(text="Firewall X Security™ • Emergency Mode")
-        embed.timestamp = ctx.message.created_at
-
         await ctx.send(embed=embed)
 
 
-@auto.group(name="emergency")
+@auto.group(name="emergency", aliases=["emg"])
 async def emergency(ctx):
     if ctx.invoked_subcommand is None:
         await ctx.send("Use: enable / disable / restore")
-
 
 # ===== ENABLE =====
 @emergency.command()
