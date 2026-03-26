@@ -173,23 +173,41 @@ async def reset(ctx):
 @bot.command()
 async def wl(ctx, member: discord.Member):
     whitelist.add(member.id)
-    await ctx.send(f"✅ {member} whitelisted")
+    
+    embed = discord.Embed(
+        title="✅ User Whitelisted",
+        description=f"{member.mention} has been successfully added to the whitelist.",
+        color=discord.Color.green()
+    )
+
+    embed.add_field(name="User", value=f"{member}", inline=True)
+    embed.add_field(name="Action By", value=f"{ctx.author.mention}", inline=True)
+
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+    
+    await ctx.send(embed=embed)
+
 
 @bot.command()
 async def unwl(ctx, member: discord.Member):
     whitelist.discard(member.id)
-    await ctx.send(f"❌ {member} removed")
-
-@bot.command()
-async def whitelisted(ctx):
-    if not whitelist:
-        return await ctx.send("No users")
-    await ctx.send("\n".join([f"<@{uid}>" for uid in whitelist]))
-
-@bot.command()
-async def whitelistreset(ctx):
-    whitelist.clear()
-    await ctx.send("♻️ Reset")
+    
+    embed = discord.Embed(
+        title="❌ User Removed from Whitelist",
+        description=f"{member.mention} has been successfully removed from the whitelist.",
+        color=discord.Color.red()
+    )
+    
+    embed.add_field(name="User", value=f"{member}", inline=True)
+    embed.add_field(name="Action By", value=f"{ctx.author.mention}", inline=True)
+    
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+    
+    await ctx.send(embed=embed)
 
 @bot.command()
 @commands.has_permissions(ban_members=True)
