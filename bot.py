@@ -32,6 +32,11 @@ async def on_ready():
 @bot.event
 async def on_message(message):
     print(message.content)
+
+    # ✅ Emergency trigger
+    if message.mention_everyone:
+        await handle_emergency(message.guild, message.author, "everyone")
+
     await bot.process_commands(message)
 
 # ===== EMBED =====
@@ -592,7 +597,6 @@ async def punish(member):
         pass
 
 # ===== ANTINUKE =====
-user_actions = {}
 LIMIT = 3
 TIME = 10
 
@@ -773,13 +777,8 @@ async def on_member_ban(guild, user):
             return
 
         if check_user(executor.id):
-            await punish(executor)
+            await punish(executor) 
 
-        # ===== ANTINUKE CHECK =====
-        if check_user(executor.id):
-            await punish(executor)
-
-        # ===== EMBED LOG =====
         channel = guild.system_channel  # ya apna log channel id daal
 
         if channel:
