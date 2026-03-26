@@ -146,27 +146,74 @@ async def disable(ctx):
     await ctx.send(embed=embed, view=AntinukeView())
 
 # ===== EXTRA OWNER =====
-@bot.group()
-@commands.has_permissions(administrator=True)
-async def extraowner(ctx):
-    if ctx.invoked_subcommand is None:
-        await ctx.send("Use set/view/reset")
-
 @extraowner.command()
 async def set(ctx, member: discord.Member):
+    if member.id in extra_owners:
+        return await ctx.send("⚠️ User is already an extra owner.")
+
     extra_owners.add(member.id)
-    await ctx.send(f"👑 Added {member}")
+
+    embed = discord.Embed(
+        title="👑 Extra Owner Added",
+        description=f"{member.mention} has been successfully granted extra owner privileges.",
+        color=discord.Color.gold()
+    )
+
+    embed.add_field(name="User", value=f"{member}", inline=True)
+    embed.add_field(name="Action By", value=f"{ctx.author.mention}", inline=True)
+
+    embed.set_thumbnail(url=member.display_avatar.url)
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
 
 @extraowner.command()
 async def view(ctx):
     if not extra_owners:
-        return await ctx.send("No extra owners")
-    await ctx.send("\n".join([f"<@{uid}>" for uid in extra_owners]))
+        embed = discord.Embed(
+            title="📂 Extra Owners",
+            description="No extra owners have been set.",
+            color=discord.Color.orange()
+        )
+        return await ctx.send(embed=embed)
+
+    users = "\n".join([f"<@{uid}>" for uid in extra_owners])
+
+    embed = discord.Embed(
+        title="📂 Extra Owners List",
+        description=users,
+        color=discord.Color.blue()
+    )
+
+    embed.add_field(name="Total", value=str(len(extra_owners)), inline=True)
+
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
+
 
 @extraowner.command()
 async def reset(ctx):
+    if not extra_owners:
+        return await ctx.send("⚠️ No extra owners to reset.")
+
     extra_owners.clear()
-    await ctx.send("♻️ Reset done")
+
+    embed = discord.Embed(
+        title="♻️ Extra Owners Reset",
+        description="All extra owners have been successfully removed.",
+        color=discord.Color.red()
+    )
+
+    embed.add_field(name="Action By", value=f"{ctx.author.mention}", inline=True)
+
+    embed.set_footer(text="Firewall X Security™")
+    embed.timestamp = ctx.message.created_at
+
+    await ctx.send(embed=embed)
 
 
 # ===== WHITELIST =====
