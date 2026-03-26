@@ -695,6 +695,9 @@ async def on_member_remove(member):
     guild = member.guild
     await asyncio.sleep(1)
 
+    # ✅ EMERGENCY
+    await handle_emergency(guild, member, "kick")
+
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
         executor = entry.user
 
@@ -748,6 +751,9 @@ async def on_guild_channel_delete(channel):
 async def on_member_ban(guild, user):
     await asyncio.sleep(1)
 
+    # ✅ EMERGENCY CALL
+    await handle_emergency(guild, user, "ban")
+
     async for entry in guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
         executor = entry.user
 
@@ -768,32 +774,6 @@ async def on_member_ban(guild, user):
 
         if check_user(executor.id):
             await punish(executor)
-
-        channel = guild.system_channel
-
-        if channel:
-            embed = discord.Embed(
-                description=f"🔨 Successfully Banned {user}",
-                color=discord.Color.red()
-            )
-
-            embed.add_field(name="Target User", value=f"{user}", inline=False)
-            embed.add_field(name="Mention", value=f"<@{user.id}>", inline=False)
-            embed.add_field(name="Moderator", value=f"{executor.mention}", inline=False)
-
-            await channel.send(embed=embed)
-@bot.event
-async def on_member_ban(guild, user):
-    await handle_emergency(guild, user, "ban")
-
-@bot.event
-async def on_member_remove(member):
-    await handle_emergency(member.guild, member, "kick")
-
-@bot.event
-async def on_message(message):
-    if message.mention_everyone:
-        await handle_emergency(message.guild, message.author, "everyone")
 
         # ===== ANTINUKE CHECK =====
         if check_user(executor.id):
