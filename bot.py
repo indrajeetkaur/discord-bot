@@ -5,9 +5,15 @@ from discord.ui import View, Select, Button
 import os
 import asyncio
 import time
+
 LIMIT_ENABLED = True
 LIMIT_COUNT = 3
 LIMIT_LOGGING = True
+
+AUTO_EMERGENCY = False
+EMERGENCY_TRIGGERED = False
+user_actions = {}
+EMERGENCY_LOG_CHANNEL = None
 
 whitelist = set()
 extra_owners = set()
@@ -382,7 +388,81 @@ async def logging(ctx):
 
     await ctx.send(embed=embed)
 
+# ===== AUTO EMERGENCY =====
+@bot.group(name="auto")
+@commands.has_permissions(administrator=True)
+async def auto(ctx):
+    if ctx.invoked_subcommand is None:
+        embed = discord.Embed(
+            title="🚨 AUTO EMERGENCY PANEL",
+            description="```yaml\nAdvanced Server Protection System\n```",
+            color=discord.Color.dark_red()
+        )
 
+        embed.add_field(name="🟢 Enable", value="`&auto emergency enable`", inline=True)
+        embed.add_field(name="🔴 Disable", value="`&auto emergency disable`", inline=True)
+        embed.add_field(name="♻️ Restore", value="`&auto emergency restore`", inline=True)
+
+        embed.set_footer(text="Firewall X Security™ • Emergency Mode")
+        embed.timestamp = ctx.message.created_at
+
+        await ctx.send(embed=embed)
+
+
+@auto.group(name="emergency")
+async def emergency(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Use: enable / disable / restore")
+
+
+# ===== ENABLE =====
+@emergency.command()
+async def enable(ctx):
+    global AUTO_EMERGENCY
+    AUTO_EMERGENCY = True
+
+    embed = discord.Embed(
+        title="🟢 AUTO EMERGENCY ENABLED",
+        description="```diff\n+ Emergency system is now ACTIVE\n```",
+        color=discord.Color.green()
+    )
+
+    await ctx.send(embed=embed)
+
+
+# ===== DISABLE =====
+@emergency.command()
+async def disable(ctx):
+    global AUTO_EMERGENCY
+    AUTO_EMERGENCY = False
+
+    embed = discord.Embed(
+        title="🔴 AUTO EMERGENCY DISABLED",
+        description="```diff\n- Emergency system is now OFF\n```",
+        color=discord.Color.red()
+    )
+
+    await ctx.send(embed=embed)
+
+
+# ===== RESTORE =====
+@emergency.command()
+@commands.is_owner()
+async def restore(ctx):
+    global EMERGENCY_TRIGGERED
+
+    if not EMERGENCY_TRIGGERED:
+        return await ctx.send("⚠️ No emergency actions to restore.")
+
+    EMERGENCY_TRIGGERED = False
+
+    embed = discord.Embed(
+        title="♻️ SERVER RESTORED",
+        description="```yaml\nAll permissions restored successfully\n```",
+        color=discord.Color.blurple()
+    )
+
+    await ctx.send(embed=embed)
 
 # ===== WHITELIST =====
 @bot.command()
@@ -529,6 +609,39 @@ def check_user(user_id):
     user_actions[user_id].append(current_time)
     return len(user_actions[user_id]) >= LIMIT
 
+async def handle_emergency(guild, user, action):
+    global EMERGENCY_TRIGGERED
+
+    if not AUTO_EMERGENCY:
+        return
+
+    user_id = user.id
+    now = time.time()
+
+    if user_id not in user_actions:
+        user_actions[user_id] = []
+
+    user_actions[user_id] = [t for t in user_actions[user_id] if now - t < 600]
+    user_actions[user_id].append(now)
+
+    if len(user_actions[user_id]) >= 40 and not EMERGENCY_TRIGGERED:
+        EMERGENCY_TRIGGERED = True
+
+        # 🚨 ACTION: BAN USER
+        member = guild.get_member(user_id)
+        if member:
+            try:
+                await member.ban(reason="🚨 Emergency Mode Triggered")
+            except:
+                pass
+
+        # 🔒 LOCK SERVER (basic)
+        for role in guild.roles:
+            try:
+                await role.edit(permissions=discord.Permissions.none())
+            except:
+                continue
+
 # ===== ANTI BETRAY SYSTEM =====
 
 DANGEROUS_PERMS = [
@@ -669,6 +782,18 @@ async def on_member_ban(guild, user):
             embed.add_field(name="Moderator", value=f"{executor.mention}", inline=False)
 
             await channel.send(embed=embed)
+@bot.event
+async def on_member_ban(guild, user):
+    await handle_emergency(guild, user, "ban")
+
+@bot.event
+async def on_member_remove(member):
+    await handle_emergency(member.guild, member, "kick")
+
+@bot.event
+async def on_message(message):
+    if message.mention_everyone:
+        await handle_emergency(message.guild, message.author, "everyone")
 
         # ===== ANTINUKE CHECK =====
         if check_user(executor.id):
