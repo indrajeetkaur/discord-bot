@@ -469,6 +469,53 @@ async def restore(ctx):
 
     await ctx.send(embed=embed)
 
+@bot.group()
+@commands.has_permissions(manage_messages=True)
+async def clear(ctx):
+    if ctx.invoked_subcommand is None:
+        embed = discord.Embed(
+            title="🧹 CLEAR PANEL",
+            description="```yaml\nUse: all / bots / user\n```",
+            color=discord.Color.blue()
+        )
+        await ctx.send(embed=embed)
+
+
+@clear.command()
+async def all(ctx, amount: int):
+    await ctx.channel.purge(limit=amount)
+
+    embed = discord.Embed(
+        title="🧹 MESSAGES CLEARED",
+        description=f"```diff\n- Deleted {amount} messages\n```",
+        color=discord.Color.red()
+    )
+    await ctx.send(embed=embed, delete_after=3)
+
+
+@clear.command()
+async def bots(ctx, amount: int):
+    await ctx.channel.purge(limit=amount, check=lambda m: m.author.bot)
+
+    embed = discord.Embed(
+        title="🤖 BOT MESSAGES CLEARED",
+        description=f"Deleted {amount} bot messages",
+        color=discord.Color.orange()
+    )
+    await ctx.send(embed=embed, delete_after=3)
+
+
+@clear.command()
+async def user(ctx, member: discord.Member, amount: int):
+    await ctx.channel.purge(limit=amount, check=lambda m: m.author == member)
+
+    embed = discord.Embed(
+        title="👤 USER MESSAGES CLEARED",
+        description=f"Deleted {amount} messages from {member.mention}",
+        color=discord.Color.purple()
+    )
+    await ctx.send(embed=embed, delete_after=3)
+
 # ===== WHITELIST =====
 @bot.command()
 async def wl(ctx, member: discord.Member):
@@ -507,6 +554,125 @@ async def unwl(ctx, member: discord.Member):
     embed.set_footer(text="Firewall X Security™")
     embed.timestamp = ctx.message.created_at
     
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def lock(ctx):
+    await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=False)
+
+    embed = discord.Embed(
+        title="🔒 CHANNEL LOCKED",
+        description=f"{ctx.channel.mention} has been locked",
+        color=discord.Color.red()
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def unlock(ctx):
+    await ctx.channel.set_permissions(ctx.guild.default_role, send_messages=True)
+
+    embed = discord.Embed(
+        title="🔓 CHANNEL UNLOCKED",
+        description=f"{ctx.channel.mention} has been unlocked",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def unban(ctx, user_id: int):
+    user = await bot.fetch_user(user_id)
+    await ctx.guild.unban(user)
+
+    embed = discord.Embed(
+        title="✅ USER UNBANNED",
+        description=f"{user} has been unbanned",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def slowmode(ctx, seconds: int):
+    await ctx.channel.edit(slowmode_delay=seconds)
+
+    embed = discord.Embed(
+        title="🐢 SLOWMODE ENABLED",
+        description=f"Slowmode set to {seconds}s",
+        color=discord.Color.orange()
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def unslowmode(ctx):
+    await ctx.channel.edit(slowmode_delay=0)
+
+    embed = discord.Embed(
+        title="⚡ SLOWMODE DISABLED",
+        description="Slowmode removed",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def hide(ctx):
+    await ctx.channel.set_permissions(ctx.guild.default_role, view_channel=False)
+
+    embed = discord.Embed(
+        title="🙈 CHANNEL HIDDEN",
+        description=f"{ctx.channel.mention} is now hidden",
+        color=discord.Color.dark_grey()
+    )
+    await ctx.send(embed=embed)
+
+
+@bot.command()
+async def unhide(ctx):
+    await ctx.channel.set_permissions(ctx.guild.default_role, view_channel=True)
+
+    embed = discord.Embed(
+        title="👀 CHANNEL VISIBLE",
+        description=f"{ctx.channel.mention} is now visible",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def nuke(ctx):
+    new = await ctx.channel.clone()
+    await ctx.channel.delete()
+
+    embed = discord.Embed(
+        title="💥 CHANNEL NUKED",
+        description=f"{new.mention} recreated successfully",
+        color=discord.Color.red()
+    )
+    await new.send(embed=embed)
+
+@bot.command()
+async def clone(ctx):
+    new = await ctx.channel.clone()
+
+    embed = discord.Embed(
+        title="📋 CHANNEL CLONED",
+        description=f"Created: {new.mention}",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+@commands.has_permissions(administrator=True)
+async def secure(ctx):
+    for channel in ctx.guild.channels:
+        await channel.set_permissions(ctx.guild.default_role, use_external_apps=False)
+
+    embed = discord.Embed(
+        title="🔐 SERVER SECURED",
+        description="```diff\n- External Apps Disabled In All Channels\n```",
+        color=discord.Color.dark_red()
+    )
+
+    embed.set_footer(text="Firewall X Security™")
     await ctx.send(embed=embed)
 
 @bot.command()
