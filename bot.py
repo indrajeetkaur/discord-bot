@@ -6,6 +6,8 @@ import os
 import asyncio
 import time
 
+afk_users = {}
+
 LIMIT_ENABLED = True
 LIMIT_COUNT = 3
 LIMIT_LOGGING = True
@@ -98,6 +100,16 @@ async def setlog(ctx, channel: discord.TextChannel):
     global LOG_CHANNEL
     LOG_CHANNEL = channel.id
     await ctx.send(f"✅ Log channel set to {channel.mention}")
+
+bot.command()
+async def afk(ctx, *, reason="AFK"):
+    afk_users[ctx.author.id] = reason
+
+    embed = discord.Embed(
+        description=f"😴 {ctx.author.mention} is now AFK: {reason}",
+        color=discord.Color.yellow()
+    )
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def botinfo(ctx):
@@ -877,6 +889,81 @@ async def clone(ctx):
     await ctx.send(embed=embed)
 
 @bot.command()
+async def reminder(ctx, seconds: int, *, msg):
+    embed = discord.Embed(
+        title="⏰ Reminder Set",
+        description=f"{msg}\nTime: {seconds}s",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=embed)
+
+    await asyncio.sleep(seconds)
+
+    await ctx.send(f"🔔 {ctx.author.mention} Reminder: {msg}")
+
+@bot.command()
+async def banner(ctx, member: discord.Member = None):
+    member = member or ctx.author
+
+    user = await bot.fetch_user(member.id)
+
+    if user.banner:
+        embed = discord.Embed(
+            title=f"{member.name}'s Banner",
+            color=discord.Color.purple()
+        )
+        embed.set_image(url=user.banner.url)
+    else:
+        embed = discord.Embed(
+            description="❌ No banner found",
+            color=discord.Color.red()
+        )
+
+    await ctx.send(embed=embed) 
+
+@bot.command()
+async def badges(ctx, member: discord.Member = None):
+    member = member or ctx.author
+
+    flags = member.public_flags
+
+    badges = [flag.name for flag in flags.all()]
+
+    embed = discord.Embed(
+        title="🎭 BADGES",
+        description="\n".join(badges) if badges else "No badges",
+        color=discord.Color.gold()
+    )
+
+    await ctx.send(embed=embed)
+
+import hashlib
+
+@bot.command()
+async def hash(ctx, *, text):
+    hashed = hashlib.md5(text.encode()).hexdigest()
+
+    embed = discord.Embed(
+        title="🔐 HASH",
+        description=f"`{hashed}`",
+        color=discord.Color.green()
+    )
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def rickroll(ctx, member: discord.Member):
+    embed = discord.Embed(
+        title="😈 GOTCHA!",
+        description=f"{member.mention} you got rickrolled!",
+        color=discord.Color.red()
+    )
+
+    embed.add_field(name="Video", value="https://youtu.be/dQw4w9WgXcQ")
+
+    await ctx.send(embed=embed)
+
+@bot.command()
 @commands.has_permissions(administrator=True)
 async def secure(ctx):
     for channel in ctx.guild.channels:
@@ -1179,6 +1266,18 @@ async def on_member_ban(guild, user):
             embed.timestamp = discord.utils.utcnow()
 
             await channel.send(embed=embed)
+
+@bot.event
+async def on_message(message):
+    if message.author.id in afk_users:
+        del afk_users[message.author.id]
+        await message.channel.send(f"👋 Welcome back {message.author.mention}, AFK removed.")
+
+    for user_id, reason in afk_users.items():
+        if f"<@{user_id}>" in message.content:
+            await message.channel.send(f"😴 <@{user_id}> is AFK: {reason}")
+
+    await bot.process_commands(message)
 
 # ===== RUN =====
 bot.run(os.getenv("BOT_TOKEN"))
