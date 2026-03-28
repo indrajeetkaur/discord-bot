@@ -110,6 +110,99 @@ async def botinfo(ctx):
     embed.add_field(name="Users", value=len(bot.users))
     embed.set_thumbnail(url=bot.user.avatar.url)
     await ctx.send(embed=embed)
+@bot.command()
+async def channelinfo(ctx, channel: discord.TextChannel = None):
+    channel = channel or ctx.channel
+
+    embed = discord.Embed(
+        title="📺 CHANNEL INFO",
+        color=discord.Color.blue()
+    )
+
+    embed.add_field(name="Name", value=channel.name)
+    embed.add_field(name="ID", value=channel.id)
+    embed.add_field(name="Category", value=channel.category)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def permissions(ctx, member: discord.Member = None):
+    member = member or ctx.author
+
+    perms = [perm[0] for perm in member.guild_permissions if perm[1]]
+
+    embed = discord.Embed(
+        title="🔐 PERMISSIONS",
+        description="\n".join(perms),
+        color=discord.Color.green()
+    )
+
+    await ctx.send(embed=embed)
+
+@bot.group()
+async def list(ctx):
+    if ctx.invoked_subcommand is None:
+        await ctx.send("Use: bots / admins / roles / emojis")
+
+@list.command()
+async def bots(ctx):
+    bots = [m.mention for m in ctx.guild.members if m.bot]
+
+    embed = discord.Embed(
+        title="🤖 BOT LIST",
+        description="\n".join(bots)[:4000],
+        color=discord.Color.blue()
+    )
+
+    await ctx.send(embed=embed)
+
+@list.command()
+async def admins(ctx):
+    admins = [m.mention for m in ctx.guild.members if m.guild_permissions.administrator]
+
+    embed = discord.Embed(
+        title="👑 ADMIN LIST",
+        description="\n".join(admins)[:4000],
+        color=discord.Color.red()
+    )
+
+    await ctx.send(embed=embed)
+
+@list.command()
+async def roles(ctx):
+    roles = [r.name for r in ctx.guild.roles]
+
+    embed = discord.Embed(
+        title="🎭 ROLE LIST",
+        description="\n".join(roles)[:4000],
+        color=discord.Color.orange()
+    )
+
+    await ctx.send(embed=embed)
+
+@list.command()
+async def emojis(ctx):
+    emojis = [str(e) for e in ctx.guild.emojis]
+
+    embed = discord.Embed(
+        title="😀 EMOJI LIST",
+        description=" ".join(emojis)[:4000],
+        color=discord.Color.gold()
+    )
+
+    await ctx.send(embed=embed)
+
+@list.command(name="inrole")
+async def inrole(ctx, role: discord.Role):
+    members = [m.mention for m in role.members]
+
+    embed = discord.Embed(
+        title=f"👥 Members in {role.name}",
+        description="\n".join(members)[:4000],
+        color=discord.Color.green()
+    )
+
+    await ctx.send(embed=embed)
 
 @bot.command()
 async def stats(ctx):
@@ -120,6 +213,20 @@ async def stats(ctx):
     embed.add_field(name="Guilds", value=len(bot.guilds))
     embed.add_field(name="Users", value=len(bot.users))
     embed.add_field(name="Latency", value=f"{round(bot.latency*1000)}ms")
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def roleinfo(ctx, role: discord.Role):
+    embed = discord.Embed(
+        title="🎭 ROLE INFO",
+        color=role.color
+    )
+
+    embed.add_field(name="Name", value=role.name)
+    embed.add_field(name="ID", value=role.id)
+    embed.add_field(name="Members", value=len(role.members))
+    embed.add_field(name="Color", value=str(role.color))
+
     await ctx.send(embed=embed)
 
 @bot.command()
