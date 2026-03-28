@@ -6,6 +6,13 @@ import os
 import asyncio
 import time
 
+AUTOMOD_ENABLED = False
+AUTOMOD_LOGGING = True
+AUTOMOD_PUNISHMENT = "warn"  # warn / mute / kick / ban
+
+IGNORE_CHANNELS = set()
+IGNORE_ROLES = set() 
+
 afk_users = {}
 
 LIMIT_ENABLED = True
@@ -624,6 +631,37 @@ async def logging(ctx):
     embed.timestamp = ctx.message.created_at
 
     await ctx.send(embed=embed)
+
+
+@bot.group()
+@commands.has_permissions(administrator=True)
+async def automod(ctx):
+    if ctx.invoked_subcommand is None:
+        embed = discord.Embed(
+            title="🛡️ AUTOMOD PANEL",
+            description="```yaml\nAdvanced Moderation System\n```",
+            color=discord.Color.blurple()
+        )
+
+        embed.add_field(name="Enable", value="`&automod enable`")
+        embed.add_field(name="Disable", value="`&automod disable`")
+        embed.add_field(name="Punishment", value="`&automod punishment <type>`")
+        embed.add_field(name="Logging", value="`&automod logging`")
+
+        embed.add_field(name="Ignore", value="`&automod ignore channel/role`")
+        embed.add_field(name="Unignore", value="`&automod unignore channel/role`")
+
+        await ctx.send(embed=embed)
+
+@automod.command()
+async def disable(ctx):
+global AUTOMOD_ENABLED
+AUTOMOD_ENABLED = False
+
+await ctx.send(embed=discord.Embed(
+description="diff\n- Automod Disabled\n",
+color=discord.Color.red()
+))
 
 # ===== AUTO EMERGENCY =====
 @bot.group(name="auto")
