@@ -99,6 +99,115 @@ async def setlog(ctx, channel: discord.TextChannel):
     LOG_CHANNEL = channel.id
     await ctx.send(f"✅ Log channel set to {channel.mention}")
 
+@bot.command()
+async def botinfo(ctx):
+    embed = discord.Embed(
+        title="🤖 BOT INFO",
+        color=discord.Color.blue()
+    )
+    embed.add_field(name="Name", value=bot.user.name)
+    embed.add_field(name="Servers", value=len(bot.guilds))
+    embed.add_field(name="Users", value=len(bot.users))
+    embed.set_thumbnail(url=bot.user.avatar.url)
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def stats(ctx):
+    embed = discord.Embed(
+        title="📊 BOT STATS",
+        color=discord.Color.green()
+    )
+    embed.add_field(name="Guilds", value=len(bot.guilds))
+    embed.add_field(name="Users", value=len(bot.users))
+    embed.add_field(name="Latency", value=f"{round(bot.latency*1000)}ms")
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def invite(ctx):
+    embed = discord.Embed(
+        title="🔗 INVITE ME",
+        description="[Click Here](https://discord.com/oauth2/authorize?client_id=YOUR_ID&permissions=8&scope=bot)",
+        color=discord.Color.blurple()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def userinfo(ctx, member: discord.Member = None):
+    member = member or ctx.author
+
+    embed = discord.Embed(
+        title="👤 USER INFO",
+        color=discord.Color.purple()
+    )
+    embed.add_field(name="Name", value=member)
+    embed.add_field(name="ID", value=member.id)
+    embed.add_field(name="Joined", value=member.joined_at.strftime("%d %b %Y"))
+    embed.set_thumbnail(url=member.avatar.url)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def serverinfo(ctx):
+    guild = ctx.guild
+
+    embed = discord.Embed(
+        title="🏠 SERVER INFO",
+        color=discord.Color.orange()
+    )
+    embed.add_field(name="Name", value=guild.name)
+    embed.add_field(name="Members", value=guild.member_count)
+    embed.add_field(name="Owner", value=guild.owner)
+    embed.set_thumbnail(url=guild.icon.url if guild.icon else None)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def avatar(ctx, member: discord.Member = None):
+    member = member or ctx.author
+
+    embed = discord.Embed(
+        title=f"{member.name}'s Avatar",
+        color=discord.Color.blue()
+    )
+    embed.set_image(url=member.avatar.url)
+
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def timer(ctx, seconds: int):
+    embed = discord.Embed(
+        title="⏱️ TIMER STARTED",
+        description=f"{seconds} seconds",
+        color=discord.Color.green()
+    )
+    await ctx.send(embed=embed)
+
+    await asyncio.sleep(seconds)
+
+    await ctx.send(f"⏰ {ctx.author.mention} Timer ended!")
+
+@bot.command()
+async def membercount(ctx):
+    embed = discord.Embed(
+        title="👥 MEMBER COUNT",
+        description=f"{ctx.guild.member_count} members",
+        color=discord.Color.blue()
+    )
+    await ctx.send(embed=embed)
+
+@bot.command()
+async def poll(ctx, *, question):
+    embed = discord.Embed(
+        title="📊 POLL",
+        description=question,
+        color=discord.Color.gold()
+    )
+
+    msg = await ctx.send(embed=embed)
+    await msg.add_reaction("👍")
+    await msg.add_reaction("👎")
+
+
 # ===== ANTINUKE VIEW =====
 class AntinukeView(View):
     def __init__(self):
