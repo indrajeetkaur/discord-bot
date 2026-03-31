@@ -653,6 +653,17 @@ async def automod(ctx):
 
         await ctx.send(embed=embed)
 
+# ✅ ENABLE
+@automod.command()
+async def enable(ctx):
+    global AUTOMOD_ENABLED
+    AUTOMOD_ENABLED = True
+
+    await ctx.send(embed=discord.Embed(
+        description="```diff\n+ Automod Enabled\n```",
+        color=discord.Color.green()
+    ))
+
 @automod.command()
 async def disable(ctx):
     global AUTOMOD_ENABLED
