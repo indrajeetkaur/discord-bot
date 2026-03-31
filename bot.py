@@ -658,10 +658,10 @@ async def disable(ctx):
     global AUTOMOD_ENABLED
     AUTOMOD_ENABLED = False
 
-await ctx.send(embed=discord.Embed(
-description="diff\n- Automod Disabled\n",
-color=discord.Color.red()
-))
+    await ctx.send(embed=discord.Embed(
+        description="```diff\n- Automod Disabled\n```",
+        color=discord.Color.red()
+    ))
 
 # ===== AUTO EMERGENCY =====
 @bot.group(name="auto")
