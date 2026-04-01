@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import time
+import tim
 from collections import defaultdict
 
 intents = discord.Intents.all()
