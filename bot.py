@@ -657,24 +657,21 @@ async def automod(ctx):
 async def enable(ctx):
     global AUTOMOD_ENABLED
     AUTOMOD_ENABLED = True
-
     await ctx.send(embed=discord.Embed(
         description="```diff\n+ Automod Enabled\n```",
         color=discord.Color.green()
     ))
 
-
 @automod.command()
 async def disable(ctx):
     global AUTOMOD_ENABLED
     AUTOMOD_ENABLED = False
-
     await ctx.send(embed=discord.Embed(
         description="```diff\n- Automod Disabled\n```",
         color=discord.Color.red()
     ))
 
-# ===== AUTO EMERGENCY =====
+===== AUTO EMERGENCY =====
 @bot.group(name="auto")
 @commands.has_permissions(administrator=True)
 async def auto(ctx):
