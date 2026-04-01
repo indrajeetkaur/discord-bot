@@ -1317,6 +1317,8 @@ async def on_member_ban(guild, user):
 
 @bot.event
 async def on_message(message):
+
+    # AFK system
     if message.author.id in afk_users:
         del afk_users[message.author.id]
         await message.channel.send(f"👋 Welcome back {message.author.mention}, AFK removed.")
