@@ -6,9 +6,47 @@ from collections import defaultdict
 intents = discord.Intents.all()
 bot = commands.Bot(command_prefix="&", intents=intents)
 
+JOINS = defaultdict(list)
+
 AFK = {}
 SPAM = defaultdict(list)
 LOG_CHANNEL = None
+
+AFK = {}
+SPAM = defaultdict(list)
+LOG_CHANNEL = None
+
+BAD_WORDS = ["mc", "bc", "madarchod", "bhosdike"]
+
+class TicketView(discord.ui.View):
+    def __init__(self):
+        super().__init__(timeout=None)
+
+    @discord.ui.button(label="🎫 Create Ticket", style=discord.ButtonStyle.green)
+    async def create_ticket(self, interaction, button):
+        guild = interaction.guild
+
+        overwrites = {
+            guild.default_role: discord.PermissionOverwrite(read_messages=False),
+            interaction.user: discord.PermissionOverwrite(read_messages=True),
+        }
+
+        ch = await guild.create_text_channel(
+            f"ticket-{interaction.user.name}",
+            overwrites=overwrites
+        )
+
+        await interaction.response.send_message(
+            embed=em("🎫 TICKET CREATED", f"🛡️ {ch.mention}", discord.Color.green()),
+            ephemeral=True
+        )
+
+@bot.command()
+async def ticket(ctx):
+    await ctx.send(
+        embed=em("🎫 SUPPORT SYSTEM", "🛡️ Click button to create ticket", discord.Color.blurple()),
+        view=TicketView()
+    )
 
 # ===== EMBED STYLE =====
 def em(title, desc, color):
@@ -119,6 +157,28 @@ async def unlock(ctx):
         discord.Color.green()
     ))
 
+@bot.command()
+async def reactrole(ctx, role: discord.Role):
+    msg = await ctx.send(embed=em(
+        "🎭 REACTION ROLE",
+        f"🛡️ React to get {role.mention}\n🔥 Click below",
+        discord.Color.blurple()
+    ))
+
+    await msg.add_reaction("🔥")
+
+    def check(reaction, user):
+        return reaction.message.id == msg.id and str(reaction.emoji) == "🔥"
+
+    reaction, user = await bot.wait_for("reaction_add", check=check)
+    await user.add_roles(role)
+
+    await ctx.send(embed=em(
+        "✅ ROLE GIVEN",
+        f"🛡️ {user.mention} got {role.mention}",
+        discord.Color.green()
+    ))l
+
 # ===== AFK =====
 @bot.command()
 async def afk(ctx, *, reason="AFK"):
@@ -132,13 +192,27 @@ async def afk(ctx, *, reason="AFK"):
 # ===== EVENTS =====
 @bot.event
 async def on_member_join(m):
+    now = time.time()
+    JOINS[m.guild.id].append(now)
+    JOINS[m.guild.id] = [t for t in JOINS[m.guild.id] if now - t < 10]
+
+    # 🚨 RAID DETECT
+    if len(JOINS[m.guild.id]) >= 5:
+        for ch in m.guild.channels:
+            await ch.set_permissions(m.guild.default_role, send_messages=False)
+
+        await log(m.guild, em(
+            "🚨 RAID DETECTED",
+            "🛡️ Server auto locked due to mass join\n❌ All channels locked",
+            discord.Color.red()
+        ))
+
     if m.guild.system_channel:
         await m.guild.system_channel.send(embed=em(
             "📥 NEW MEMBER",
-            f"🛡️ Welcome {m.mention}\n🔥 Enjoy your stay!",
+            f"🛡️ Welcome {m.mention}\n🔥 Stay safe!",
             discord.Color.green()
         ))
-    await log(m.guild, em("📜 JOIN LOG", f"📥 {m}", discord.Color.green()))
 
 @bot.event
 async def on_member_remove(m):
@@ -156,6 +230,19 @@ async def on_message_edit(before, after):
 @bot.event
 async def on_message(m):
     if m.author.bot:
+        return
+
+    if m.author.guild_permissions.administrator:
+        return
+
+ # 🤬 BAD WORD FILTER 
+    if any(word in m.content.lower() for word in BAD_WORDS):
+        await m.delete()
+        await m.channel.send(embed=em(
+            "⚠️ BAD WORD DETECTED",
+            f"🛡️ {m.author.mention}\n❌ Message removed",
+            discord.Color.red()
+        ))
         return
 
     # AFK REMOVE
