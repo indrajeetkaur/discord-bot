@@ -663,6 +663,7 @@ async def enable(ctx):
         color=discord.Color.green()
     ))
 
+
 @automod.command()
 async def disable(ctx):
     global AUTOMOD_ENABLED
