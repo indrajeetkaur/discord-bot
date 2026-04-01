@@ -665,8 +665,8 @@ async def enable(ctx):
 
 @automod.command()
 async def disable(ctx):
-    global AUTOMOD_DISABLED
-    AUTOMOD_DISABLED = False
+    global AUTOMOD_ENABLED
+    AUTOMOD_ENABLED = False
 
     await ctx.send(embed=discord.Embed(
         description="```diff\n- Automod Disabled\n```",
