@@ -503,4 +503,5 @@ if "@everyone" in m.content or "@here" in m.content:
     await bot.process_commands(m)
 
 # ===== RUN =====
-bot.run("YOUR_BOT_TOKEN")
+import os
+bot.run(os.getenv("TOKEN"))
