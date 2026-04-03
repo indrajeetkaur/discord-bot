@@ -283,6 +283,18 @@ async def unlock(ctx):
     ))
 
 @bot.command()
+async def userinfo(ctx, member: discord.Member=None):
+    member = member or ctx.author
+
+    await ctx.send(embed=em(
+        "👤 USER INFO",
+        f"🛡️ User :: {member.mention}\n"
+        f"🆔 ID :: {member.id}\n"
+        f"📅 Joined :: {member.joined_at.strftime('%d %b %Y')}",
+        discord.Color.blurple()
+    ))
+
+@bot.command()
 async def reactrole(ctx, role: discord.Role):
     msg = await ctx.send(embed=em(
         "🎭 REACTION ROLE",
@@ -379,14 +391,38 @@ async def on_ready():
 
 @bot.event
 async def on_member_update(before, after):
-    if any(word in after.display_name.lower() for word in BAD_WORDS):
-        await after.edit(nick="🚫 Bad Name")
 
-        await log(after.guild, em(
-            "⚠️ BAD NICKNAME",
-            f"🛡️ {after.mention} nickname changed",
-            discord.Color.orange()
-        ))
+    # 🤬 BAD NICKNAME FILTER
+    if any(word in after.display_name.lower() for word in BAD_WORDS):
+        try:
+            await after.edit(nick="🚫 Bad Name")
+
+            await log(after.guild, em(
+                "⚠️ BAD NICKNAME",
+                f"🛡️ {after.mention} nickname changed",
+                discord.Color.orange()
+            ))
+        except:
+            pass
+
+    # 🛡️ ADMIN ROLE BLOCK
+    if not before.guild.me.guild_permissions.manage_roles:
+        return
+
+    added_roles = [r for r in after.roles if r not in before.roles]
+
+    for role in added_roles:
+        if role.permissions.administrator:
+            try:
+                await after.remove_roles(role)
+
+                await log(after.guild, em(
+                    "🚫 ADMIN ROLE BLOCKED",
+                    f"🛡️ {after.mention} tried to get admin",
+                    discord.Color.red()
+                ))
+            except:
+                pass
 
 # ===== MESSAGE SYSTEM =====
 @bot.event
@@ -406,6 +442,16 @@ async def on_message(m):
             discord.Color.red()
         ))
         return
+
+if "@everyone" in m.content or "@here" in m.content:
+    await m.delete()
+
+    await m.channel.send(embed=em(
+        "🚫 MASS MENTION BLOCKED",
+        f"🛡️ {m.author.mention}\n❌ Not allowed",
+        discord.Color.red()
+    ))
+    return
 
     # AFK REMOVE
     if m.author.id in AFK:
