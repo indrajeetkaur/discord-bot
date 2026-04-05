@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-import tim
+import time
 from collections import defaultdict
 import re
 
@@ -13,10 +13,7 @@ JOINS = defaultdict(list)
 
 AFK = {}
 SPAM = defaultdict(list)
-LOG_CHANNEL = None
-
-AFK = {}
-SPAM = defaultdict(list)
+WARNS = defaultdict(int)
 LOG_CHANNEL = None
 
 BAD_WORDS = ["mc", "bc", "madarchod", "bhosdike"]
@@ -314,7 +311,7 @@ async def reactrole(ctx, role: discord.Role):
         "✅ ROLE GIVEN",
         f"🛡️ {user.mention} got {role.mention}",
         discord.Color.green()
-    ))l
+    ))
 
 # ===== AFK =====
 @bot.command()
@@ -433,7 +430,7 @@ async def on_message(m):
     if m.author.guild_permissions.administrator:
         return
 
- # 🤬 BAD WORD FILTER 
+    # 🤬 BAD WORD FILTER 
     if any(word in m.content.lower() for word in BAD_WORDS):
         await m.delete()
         await m.channel.send(embed=em(
@@ -443,15 +440,15 @@ async def on_message(m):
         ))
         return
 
-if "@everyone" in m.content or "@here" in m.content:
-    await m.delete()
-
-    await m.channel.send(embed=em(
-        "🚫 MASS MENTION BLOCKED",
-        f"🛡️ {m.author.mention}\n❌ Not allowed",
-        discord.Color.red()
-    ))
-    return
+    # 🚫 MASS MENTION
+    if "@everyone" in m.content or "@here" in m.content:
+        await m.delete()
+        await m.channel.send(embed=em(
+            "🚫 MASS MENTION BLOCKED",
+            f"🛡️ {m.author.mention}\n❌ Not allowed",
+            discord.Color.red()
+        ))
+        return
 
     # AFK REMOVE
     if m.author.id in AFK:
@@ -471,32 +468,34 @@ if "@everyone" in m.content or "@here" in m.content:
                 discord.Color.blue()
             ))
 
-    # AUTOMOD (LINK BLOCK)
-   if re.search(LINK_REGEX, m.content):
-    
-    # ✅ ROLE BYPASS
-    if any(role.id in ALLOWED_ROLES for role in m.author.roles):
-        return
+    # 🔗 LINK BLOCK
+    if re.search(LINK_REGEX, m.content):
+
+        if any(role.id in ALLOWED_ROLES for role in m.author.roles):
+            return
 
         await m.delete()
-
         await m.channel.send(embed=em(
             "❌ LINK BLOCKED",
-            f"➤ User :: {m.author.mention}\n➤ Action :: Message Removed\n➤ Reason :: Links not allowed",
+            f"➤ User :: {m.author.mention}\n➤ Reason :: Links not allowed",
             discord.Color.red()
         ))
+        return
 
-        return 
-
-    # SPAM DETECT
+    # 🚫 SPAM DETECT
     now = time.time()
     SPAM[m.author.id].append(now)
-    SPAM[m.author.id] = [t for t in SPAM[m.author.id] if now-t < 5]
+    SPAM[m.author.id] = [t for t in SPAM[m.author.id] if now - t < 5]
 
     if len(SPAM[m.author.id]) > 5:
+        role = m.guild.get_role(MUTE_ROLE)
+
+        if role:
+            await m.author.add_roles(role)
+
         await m.channel.send(embed=em(
-            "🚫 SPAM DETECTED",
-            f"🛡️ {m.author.mention}\n⚠️ Slow down!",
+            "🚫 AUTO MUTE",
+            f"🛡️ {m.author.mention}\n⚠️ Spamming detected\n🔇 Muted",
             discord.Color.red()
         ))
 
